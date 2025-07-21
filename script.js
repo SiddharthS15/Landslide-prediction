@@ -20,7 +20,107 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
     initializeGeocoding();
+    createParticleEffect();
+    addMouseTracker();
+    addTypewriterEffect();
 });
+
+// Create floating particles effect
+function createParticleEffect() {
+    const container = document.querySelector('.container');
+    
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.style.cssText = `
+            position: fixed;
+            width: ${Math.random() * 4 + 2}px;
+            height: ${Math.random() * 4 + 2}px;
+            background: rgba(255, 255, 255, ${Math.random() * 0.3 + 0.1});
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: float-particle ${Math.random() * 20 + 10}s linear infinite;
+            left: ${Math.random() * 100}vw;
+            top: ${Math.random() * 100}vh;
+        `;
+        
+        document.body.appendChild(particle);
+    }
+    
+    // Add CSS for particle animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) translateX(0px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(${Math.random() * 200 - 100}px);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Add mouse tracking effect
+function addMouseTracker() {
+    let mouseX = 0, mouseY = 0;
+    let cursorX = 0, cursorY = 0;
+    
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+    
+    const cursor = document.createElement('div');
+    cursor.style.cssText = `
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        background: radial-gradient(circle, rgba(102, 126, 234, 0.6), rgba(240, 147, 251, 0.4));
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transition: transform 0.1s ease;
+        mix-blend-mode: difference;
+    `;
+    document.body.appendChild(cursor);
+    
+    function animateCursor() {
+        cursorX += (mouseX - cursorX) * 0.1;
+        cursorY += (mouseY - cursorY) * 0.1;
+        cursor.style.left = cursorX - 10 + 'px';
+        cursor.style.top = cursorY - 10 + 'px';
+        requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+}
+
+// Add typewriter effect to subtitle
+function addTypewriterEffect() {
+    const subtitle = document.querySelector('.subtitle');
+    const text = subtitle.textContent;
+    subtitle.textContent = '';
+    
+    let i = 0;
+    function typeWriter() {
+        if (i < text.length) {
+            subtitle.textContent += text.charAt(i);
+            i++;
+            setTimeout(typeWriter, 50);
+        }
+    }
+    
+    setTimeout(typeWriter, 1000);
+}
 
 // Event Listeners
 function initializeEventListeners() {
@@ -37,6 +137,176 @@ function initializeEventListeners() {
     uploadArea.addEventListener('dragleave', handleDragLeave);
     uploadArea.addEventListener('drop', handleDrop);
     soilImage.addEventListener('change', handleImageUpload);
+    
+    // Add interactive effects
+    addInputEffects();
+    addButtonEffects();
+}
+
+// Add interactive input effects
+function addInputEffects() {
+    const inputs = document.querySelectorAll('input[type="number"], input[type="text"]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('input-focused');
+            createRippleEffect(this);
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('input-focused');
+        });
+        
+        input.addEventListener('input', function() {
+            validateInputRealTime(this);
+        });
+    });
+}
+
+// Add button hover effects
+function addButtonEffects() {
+    const buttons = document.querySelectorAll('.btn-primary, .btn-secondary');
+    
+    buttons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            createButtonGlow(this);
+        });
+        
+        button.addEventListener('click', function(e) {
+            createClickRipple(e, this);
+        });
+    });
+}
+
+// Create ripple effect
+function createRippleEffect(element) {
+    const ripple = document.createElement('div');
+    ripple.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #667eea, #f093fb);
+        transform: translateY(-50%);
+        transition: width 0.3s ease;
+        pointer-events: none;
+    `;
+    
+    element.style.position = 'relative';
+    element.appendChild(ripple);
+    
+    setTimeout(() => {
+        ripple.style.width = '100%';
+    }, 10);
+    
+    setTimeout(() => {
+        ripple.remove();
+    }, 300);
+}
+
+// Create button glow effect
+function createButtonGlow(button) {
+    button.style.boxShadow = `
+        0 0 20px rgba(102, 126, 234, 0.5),
+        0 0 40px rgba(240, 147, 251, 0.3),
+        0 15px 35px rgba(102, 126, 234, 0.4)
+    `;
+    
+    setTimeout(() => {
+        button.style.boxShadow = '';
+    }, 2000);
+}
+
+// Create click ripple effect
+function createClickRipple(event, button) {
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
+    
+    const ripple = document.createElement('div');
+    ripple.style.cssText = `
+        position: absolute;
+        width: ${size}px;
+        height: ${size}px;
+        left: ${x}px;
+        top: ${y}px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+        pointer-events: none;
+    `;
+    
+    button.style.position = 'relative';
+    button.style.overflow = 'hidden';
+    button.appendChild(ripple);
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple-animation {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    setTimeout(() => {
+        ripple.remove();
+    }, 600);
+}
+
+// Real-time input validation with visual feedback
+function validateInputRealTime(input) {
+    const value = parseFloat(input.value);
+    const min = parseFloat(input.min);
+    const max = parseFloat(input.max);
+    
+    input.classList.remove('input-valid', 'input-invalid');
+    
+    if (input.value && !isNaN(value)) {
+        if (value >= min && value <= max) {
+            input.classList.add('input-valid');
+            showValidationIcon(input, 'check');
+        } else {
+            input.classList.add('input-invalid');
+            showValidationIcon(input, 'times');
+        }
+    } else {
+        removeValidationIcon(input);
+    }
+}
+
+// Show validation icon
+function showValidationIcon(input, icon) {
+    removeValidationIcon(input);
+    
+    const iconElement = document.createElement('i');
+    iconElement.className = `fas fa-${icon} validation-icon`;
+    iconElement.style.cssText = `
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: ${icon === 'check' ? '#4CAF50' : '#F44336'};
+        font-size: 14px;
+        pointer-events: none;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    input.parentElement.style.position = 'relative';
+    input.parentElement.appendChild(iconElement);
+}
+
+// Remove validation icon
+function removeValidationIcon(input) {
+    const existingIcon = input.parentElement.querySelector('.validation-icon');
+    if (existingIcon) {
+        existingIcon.remove();
+    }
 }
 
 // Geocoding and Location Services
@@ -373,9 +643,9 @@ function generateRecommendations(riskPercentage, data) {
 }
 
 function displayResults(prediction) {
-    // Update risk percentage and category
+    // Update risk percentage and category with animation
     const riskPercentage = prediction.riskPercentage;
-    document.getElementById('riskPercentage').textContent = `${riskPercentage}%`;
+    animateCounter(document.getElementById('riskPercentage'), 0, riskPercentage, '%', 2000);
     
     // Determine risk category and color
     let category, description, colorClass;
@@ -397,31 +667,127 @@ function displayResults(prediction) {
         colorClass = 'risk-low';
     }
     
-    document.getElementById('riskCategory').textContent = category;
-    document.getElementById('riskDescription').textContent = description;
+    // Animate text appearance
+    setTimeout(() => {
+        document.getElementById('riskCategory').textContent = category;
+        document.getElementById('riskCategory').classList.add('glow-text');
+    }, 1000);
+    
+    setTimeout(() => {
+        document.getElementById('riskDescription').textContent = description;
+    }, 1500);
+    
     document.getElementById('riskCircle').className = `risk-circle ${colorClass}`;
     
-    // Update factor impacts
-    document.getElementById('rainfallImpact').textContent = prediction.factors.rainfall;
-    document.getElementById('topographyImpact').textContent = prediction.factors.topography;
-    document.getElementById('soilImpact').textContent = prediction.factors.soil;
-    document.getElementById('locationImpact').textContent = prediction.factors.location;
+    // Animate factor impacts with staggered timing
+    const factors = ['rainfallImpact', 'topographyImpact', 'soilImpact', 'locationImpact'];
+    const impacts = [prediction.factors.rainfall, prediction.factors.topography, 
+                    prediction.factors.soil, prediction.factors.location];
     
-    // Update recommendations
-    const recommendationsList = document.getElementById('recommendationsList');
-    recommendationsList.innerHTML = '';
-    prediction.recommendations.forEach(rec => {
-        const li = document.createElement('li');
-        li.textContent = rec;
-        recommendationsList.appendChild(li);
+    factors.forEach((factorId, index) => {
+        setTimeout(() => {
+            const element = document.getElementById(factorId);
+            element.textContent = impacts[index];
+            element.parentElement.parentElement.classList.add('pulse');
+            
+            setTimeout(() => {
+                element.parentElement.parentElement.classList.remove('pulse');
+            }, 1000);
+        }, 2000 + (index * 200));
     });
     
-    // Show results section with animation
-    resultsSection.style.display = 'block';
-    resultsSection.classList.add('fade-in');
+    // Animate recommendations list
+    const recommendationsList = document.getElementById('recommendationsList');
+    recommendationsList.innerHTML = '';
     
-    // Scroll to results
-    resultsSection.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+        prediction.recommendations.forEach((rec, index) => {
+            setTimeout(() => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                li.style.animationDelay = `${index * 0.1}s`;
+                recommendationsList.appendChild(li);
+            }, index * 100);
+        });
+    }, 3000);
+    
+    // Show results section with enhanced animation
+    resultsSection.style.display = 'block';
+    resultsSection.classList.add('fade-in', 'floating');
+    
+    // Create celebration effect for low risk
+    if (riskPercentage < 30) {
+        createCelebrationEffect();
+    }
+    
+    // Scroll to results with smooth animation
+    setTimeout(() => {
+        resultsSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }, 500);
+}
+
+// Animate counter with easing
+function animateCounter(element, start, end, suffix = '', duration = 1000) {
+    const startTime = performance.now();
+    
+    function updateCounter(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function (ease-out)
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(start + (end - start) * easeOut);
+        
+        element.textContent = current + suffix;
+        
+        if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+        }
+    }
+    
+    requestAnimationFrame(updateCounter);
+}
+
+// Create celebration effect for low risk results
+function createCelebrationEffect() {
+    const colors = ['#4CAF50', '#8BC34A', '#CDDC39', '#FFC107'];
+    
+    for (let i = 0; i < 30; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.style.cssText = `
+                position: fixed;
+                width: 8px;
+                height: 8px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                left: ${Math.random() * 100}vw;
+                top: -10px;
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 1000;
+                animation: confetti-fall 3s linear forwards;
+            `;
+            
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 3000);
+        }, i * 50);
+    }
+    
+    // Add confetti animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 // Utility Functions
