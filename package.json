@@ -1,0 +1,37 @@
+{
+  "name": "landslide-susceptibility-prediction",
+  "version": "1.0.0",
+  "description": "A modern web application for predicting landslide susceptibility using AI and environmental data analysis",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'No build process required for vanilla HTML/CSS/JS'",
+    "lint": "echo 'Linting not configured yet'"
+  },
+  "keywords": [
+    "landslide",
+    "prediction",
+    "geology",
+    "ai",
+    "environmental",
+    "risk-assessment",
+    "javascript",
+    "html",
+    "css"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "serve": "^14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/landslide-susceptibility-prediction.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/landslide-susceptibility-prediction/issues"
+  },
+  "homepage": "https://github.com/yourusername/landslide-susceptibility-prediction#readme"
+}

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Landslide Susceptibility Prediction</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .demo-banner {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .demo-controls {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .demo-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .demo-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+        }
+        .demo-btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Demo Banner -->
+        <div class="demo-banner">
+            <i class="fas fa-flask"></i>
+            <strong>DEMO MODE</strong> - This is a demonstration with sample data and simulated predictions
+        </div>
+
+        <!-- Demo Controls -->
+        <div class="demo-controls">
+            <h3><i class="fas fa-play-circle"></i> Quick Demo Scenarios</h3>
+            <p>Try these pre-configured scenarios to see how the system works:</p>
+            <div class="demo-buttons">
+                <button class="demo-btn" onclick="loadScenario('high')">
+                    <i class="fas fa-exclamation-triangle"></i> High Risk Area
+                </button>
+                <button class="demo-btn" onclick="loadScenario('moderate')">
+                    <i class="fas fa-info-circle"></i> Moderate Risk Area
+                </button>
+                <button class="demo-btn" onclick="loadScenario('low')">
+                    <i class="fas fa-check-circle"></i> Low Risk Area
+                </button>
+                <button class="demo-btn" onclick="loadScenario('emergency')">
+                    <i class="fas fa-bolt"></i> Emergency Scenario
+                </button>
+                <button class="demo-btn" onclick="loadRandomLocation()">
+                    <i class="fas fa-random"></i> Random Location
+                </button>
+                <button class="demo-btn" onclick="clearForm()">
+                    <i class="fas fa-refresh"></i> Clear Form
+                </button>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-mountain"></i>
+                    <h1>LandSlide AI</h1>
+                </div>
+                <p class="subtitle">Advanced Landslide Susceptibility Prediction System</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Input Form -->
+            <div class="prediction-form">
+                <div class="form-header">
+                    <h2><i class="fas fa-location-dot"></i> Prediction Analysis</h2>
+                    <p>Enter location and environmental data to assess landslide risk</p>
+                </div>
+
+                <form id="predictionForm">
+                    <!-- Location Section -->
+                    <div class="input-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> Location Information</h3>
+                        <div class="input-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" placeholder="Enter city, address, or coordinates" required>
+                            <button type="button" id="getLocationBtn" class="btn-secondary">
+                                <i class="fas fa-crosshairs"></i> Use Current Location
+                            </button>
+                        </div>
+                        
+                        <div class="coordinates-display" id="coordinatesDisplay">
+                            <div class="coordinate">
+                                <label>Latitude:</label>
+                                <span id="latValue">--</span>
+                            </div>
+                            <div class="coordinate">
+                                <label>Longitude:</label>
+                                <span id="lngValue">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Environmental Data Section -->
+                    <div class="input-section">
+                        <h3><i class="fas fa-cloud-rain"></i> Environmental Factors</h3>
+                        
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="rainfall">Annual Rainfall (mm)</label>
+                                <input type="number" id="rainfall" placeholder="e.g., 1200" min="0" max="10000" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="precipitation">Recent Precipitation (mm)</label>
+                                <input type="number" id="precipitation" placeholder="e.g., 150" min="0" max="1000" required>
+                            </div>
+                        </div>
+
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="slope">Slope Angle (degrees)</label>
+                                <input type="number" id="slope" placeholder="e.g., 25" min="0" max="90" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="elevation">Elevation (meters)</label>
+                                <input type="number" id="elevation" placeholder="e.g., 500" min="0" max="9000" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Soil Type Analysis Section -->
+                    <div class="input-section">
+                        <h3><i class="fas fa-image"></i> Soil Type Analysis</h3>
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Upload soil/terrain image for analysis</p>
+                                <p class="upload-hint">Drag & drop or click to select (Demo: Auto-generates soil type)</p>
+                            </div>
+                            <input type="file" id="soilImage" accept="image/*" hidden>
+                        </div>
+                        <div class="image-preview" id="imagePreview"></div>
+                        <div class="soil-type-result" id="soilTypeResult"></div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-primary" id="predictBtn">
+                        <i class="fas fa-brain"></i>
+                        Analyze Landslide Risk
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <div class="results-header">
+                    <h2><i class="fas fa-chart-line"></i> Risk Assessment Results</h2>
+                </div>
+
+                <div class="risk-overview">
+                    <div class="risk-level" id="riskLevel">
+                        <div class="risk-indicator">
+                            <div class="risk-circle" id="riskCircle">
+                                <span id="riskPercentage">--</span>
+                            </div>
+                        </div>
+                        <div class="risk-details">
+                            <h3 id="riskCategory">Calculating...</h3>
+                            <p id="riskDescription">Please wait while we analyze the data</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-factors">
+                    <h3>Risk Factor Analysis</h3>
+                    <div class="factors-grid">
+                        <div class="factor-card">
+                            <div class="factor-header">
+                                <i class="fas fa-cloud-rain"></i>
+                                <span>Rainfall Impact</span>
+                            </div>
+                            <div class="factor-value" id="rainfallImpact">--</div>
+                        </div>
+                        <div class="factor-card">
+                            <div class="factor-header">
+                                <i class="fas fa-mountain"></i>
+                                <span>Topography</span>
+                            </div>
+                            <div class="factor-value" id="topographyImpact">--</div>
+                        </div>
+                        <div class="factor-card">
+                            <div class="factor-header">
+                                <i class="fas fa-seedling"></i>
+                                <span>Soil Stability</span>
+                            </div>
+                            <div class="factor-value" id="soilImpact">--</div>
+                        </div>
+                        <div class="factor-card">
+                            <div class="factor-header">
+                                <i class="fas fa-map-marked-alt"></i>
+                                <span>Location Risk</span>
+                            </div>
+                            <div class="factor-value" id="locationImpact">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recommendations">
+                    <h3><i class="fas fa-lightbulb"></i> Recommendations</h3>
+                    <ul id="recommendationsList">
+                        <li>Analysis in progress...</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Analyzing landslide susceptibility...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="sample-data.js"></script>
+    <script src="script.js"></script>
+    
+    <script>
+        // Demo-specific functions
+        function loadScenario(type) {
+            let scenario;
+            switch(type) {
+                case 'high':
+                    scenario = SampleDataUtils.getScenario('High Risk');
+                    break;
+                case 'moderate':
+                    scenario = SampleDataUtils.getScenario('Moderate Risk');
+                    break;
+                case 'low':
+                    scenario = SampleDataUtils.getScenario('Low Risk');
+                    break;
+                case 'emergency':
+                    scenario = SampleDataUtils.getScenario('Monsoon Emergency');
+                    break;
+                default:
+                    scenario = SampleDataUtils.getScenario('Moderate Risk');
+            }
+
+            if (scenario) {
+                // Fill form with scenario data
+                document.getElementById('location').value = scenario.location;
+                document.getElementById('rainfall').value = scenario.data.rainfall;
+                document.getElementById('precipitation').value = scenario.data.precipitation;
+                document.getElementById('slope').value = scenario.data.slope;
+                document.getElementById('elevation').value = scenario.data.elevation;
+                
+                // Set mock coordinates
+                updateCoordinates(
+                    20.5937 + Math.random() * 10, 
+                    78.9629 + Math.random() * 10
+                );
+                
+                // Simulate soil type detection
+                soilTypeResult.textContent = `Detected: ${scenario.data.soilType}`;
+                soilTypeResult.style.display = 'block';
+                
+                alert(`Loaded ${scenario.name} scenario. Click "Analyze Landslide Risk" to see results.`);
+            }
+        }
+
+        function loadRandomLocation() {
+            const location = SampleDataUtils.getRandomLocation();
+            const randomData = SampleDataUtils.generateRandomData();
+            
+            // Fill form with random location data
+            document.getElementById('location').value = location.name;
+            document.getElementById('rainfall').value = randomData.rainfall;
+            document.getElementById('precipitation').value = randomData.precipitation;
+            document.getElementById('slope').value = randomData.slope;
+            document.getElementById('elevation').value = randomData.elevation;
+            
+            // Set location coordinates
+            updateCoordinates(location.lat, location.lng);
+            
+            // Random soil type
+            const soilTypes = ['Clay soil', 'Sandy soil', 'Loamy soil', 'Silt soil', 'Rocky soil'];
+            const randomSoil = soilTypes[Math.floor(Math.random() * soilTypes.length)];
+            soilTypeResult.textContent = `Detected: ${randomSoil} - Auto-generated for demo`;
+            soilTypeResult.style.display = 'block';
+            
+            alert(`Loaded random location: ${location.name}. Click "Analyze Landslide Risk" to see results.`);
+        }
+
+        function clearForm() {
+            document.getElementById('predictionForm').reset();
+            document.getElementById('latValue').textContent = '--';
+            document.getElementById('lngValue').textContent = '--';
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('soilTypeResult').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+            currentLat = null;
+            currentLng = null;
+            uploadedImage = null;
+        }
+
+        // Auto-generate soil type when no image is uploaded
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            if (!uploadedImage && !soilTypeResult.textContent) {
+                const soilTypes = [
+                    'Clay soil - High water retention, prone to instability when saturated',
+                    'Sandy soil - Good drainage, moderate stability',
+                    'Loamy soil - Balanced composition, generally stable',
+                    'Rocky soil - High stability, good drainage',
+                    'Silt soil - Moderate stability, requires monitoring during heavy rainfall'
+                ];
+                const randomSoilType = soilTypes[Math.floor(Math.random() * soilTypes.length)];
+                soilTypeResult.textContent = `Auto-detected: ${randomSoilType}`;
+                soilTypeResult.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
